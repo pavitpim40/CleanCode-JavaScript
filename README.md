@@ -228,3 +228,31 @@ function createMicrobrewery(name = "Hipster Brew Co.") {
 หลีกเลี่ยง Side Effect 
   
 4. Linters ช่วยแจ้งเตือน property ที่ไม่ถูกใช้งานได้ 
+
+**Bad:**
+
+```javascript
+function createMenu(title, body, buttonText, cancellable) {
+  // ...
+}
+
+createMenu("Foo", "Bar", "Baz", true);
+
+```
+
+**Good:**
+
+```javascript
+function createMenu({ title, body, buttonText, cancellable }) {
+  // ...
+}
+
+createMenu({
+  title: "Foo",
+  body: "Bar",
+  buttonText: "Baz",
+  cancellable: true
+});
+```
+
+**[⬆ back to top](#table-of-contents)**
