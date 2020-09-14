@@ -47,7 +47,7 @@ const currentDate = moment().format("YYYY/MM/DD");
 
 **[⬆ back to top](#table-of-contents)**  
 
-### Use the same vocabulary for the same type of variable
+### ใช้คำศัพท์เดียวกันสำหรับตัวแปรประเภทเดียวกัน
 
 **Bad:**
 
@@ -90,7 +90,7 @@ setTimeout(blastOff, MILLISECONDS_IN_A_DAY);
 
 **[⬆ back to top](#table-of-contents)**  
 
-### Use explanatory variables
+### ใช้ชื่อตัวแปรที่อธิบายตัวเองได้
 
 **Bad:**
 
@@ -116,7 +116,7 @@ saveCityZipCode(city, zipCode);
 
 ### หลีกเลี่ยงการ Map โดยใช้ชื่อตัวแปรที่คนอ่านต้องไปนึกต่อเอาเอง
 
-ตั้งชื่อให้ชัดเจนดีกว่าย่อแบบมีนัย
+ตั้งชื่อให้ชัดเจนดีกว่าย่อแบบกำกวม
 
 **Bad:**
 
@@ -185,7 +185,7 @@ function paintCar(car) {
 
 ### ใช้ default arguments แทนการ short circuit หรือการใช้ condition
 
-หากใช้วิธี Defalut argument จะทำให้โค้ดดูคลีนกว่าการทำ Shot Circuit  
+หากใช้วิธี Defalut argument จะทำให้โค้ดดูคลีนกว่าการทำ Short Circuit  
 แต่ใช้ระวังไว้อย่างนึงคือฟังก์ชันจะใช้ค่า default value เมื่อค่า argument เป็น  `undefined` เท่านั้น  
 ส่วนค่า falsy อื่นๆเช่น `''`, `""`, `false`, `null`, `0`, และ
 `NaN` จะไม่ถูกแทนด้วยค่า default value
