@@ -393,7 +393,7 @@ function parse(tokens) {
 
 **[⬆ back to top](#table-of-contents)**
 
-### Remove duplicate code
+### กำจัดการใช้โค้ดซ้ำกันหลายที่ (duplicate code)
 
 นึกภาพว่าหากเรามีลิสต์จดไว้หลายที เวลาอัพเดททีก็ต้องตามไปอัพเดททุกที่ที่จดไว้  
 การ duplicate โค้ดก็เช่นกัน
