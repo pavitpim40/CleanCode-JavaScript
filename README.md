@@ -114,7 +114,7 @@ saveCityZipCode(city, zipCode);
 
 **[⬆ back to top](#table-of-contents)**
 
-### หลีกเลี่ยงการ Map โดยชือตัวแปรที่คนอ่านต้องไปนึกต่อเอาเอง
+### หลีกเลี่ยงการ Map โดยใช้ชื่อตัวแปรที่คนอ่านต้องไปนึกต่อเอาเอง
 
 ตั้งชื่อให้ชัดเจนดีกว่าย่อแบบมีนัย
 
@@ -128,7 +128,7 @@ locations.forEach(l => {
   // ...
   // ...
   // ...
-  // Wait, what is `l` for again?
+  // เดี๋ยวนะ l คิออะไรนะ
   dispatch(l);
 });
 ```
@@ -145,6 +145,66 @@ locations.forEach(location => {
   // ...
   dispatch(location);
 });
+```
+
+**[⬆ back to top](#table-of-contents)**    
+
+### อย่าใช้คำฟุ่มเฟือยโดยไม่จำเป็น
+
+ถ้าชื่อคลาสหรือออปเจ็คบอกอะไรเราบางอย่างแล้ว ไม่ต้องใช้คำคำเดิมซ้ำในบริบทหรือสโคปเดียวกัน
+
+**Bad:**
+
+```javascript
+const Car = {
+  carMake: "Honda",
+  carModel: "Accord",
+  carColor: "Blue"
+};
+
+function paintCar(car) {
+  car.carColor = "Red";
+}
+```
+
+**Good:**
+
+```javascript
+const Car = {
+  make: "Honda",
+  model: "Accord",
+  color: "Blue"
+};
+
+function paintCar(car) {
+  car.color = "Red";
+}
+```
+
+**[⬆ back to top](#table-of-contents)**  
+
+### ใช้ default arguments แทนการ short circuit หรือการใช้ condition
+
+หากใช้วิธี Defalut argument จะทำให้โค้ดดูคลีนกว่าการทำ Shot Circuit  
+แต่ใช้ระวังไว้อย่างนึงคือฟังก์ชันจะใช้ค่า default value เมื่อค่า argument เป็น  `undefined` เท่านั้น  
+ส่วนค่า falsy อื่นๆเช่น `''`, `""`, `false`, `null`, `0`, และ
+`NaN` จะไม่ถูกแทนด้วยค่า default value
+
+**Bad:**
+
+```javascript
+function createMicrobrewery(name) {
+  const breweryName = name || "Hipster Brew Co.";
+  // ...
+}
+```
+
+**Good:**
+
+```javascript
+function createMicrobrewery(name = "Hipster Brew Co.") {
+  // ...
+}
 ```
 
 **[⬆ back to top](#table-of-contents)**
