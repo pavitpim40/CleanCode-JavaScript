@@ -45,4 +45,47 @@ const yyyymmdstr = moment().format("YYYY/MM/DD");
 const currentDate = moment().format("YYYY/MM/DD");
 ```
 
+**[⬆ back to top](#table-of-contents)**  
+
+### Use the same vocabulary for the same type of variable
+
+**Bad:**
+
+```javascript
+getUserInfo();
+getClientData();
+getCustomerRecord();
+```
+
+**Good:**
+
+```javascript
+getUser();
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### ใช้ชื่อตัวแปรที่สามารถค้นหาได้
+
+หากเราไม่ตั้งชื่อตัวแปรใสามารถห้ค้นหาได้จะทำให้เพื่อนร่วมงานหรือคนรีวิวโค้ดนั้นทำงานต่อจากเราปวดเศียรเวียนเกล้า  มีเครื่องมือจำพวก 
+[buddy.js](https://github.com/danielstjules/buddy.js) และ
+[ESLint](https://github.com/eslint/eslint/blob/660e0918933e6e7fede26bc675a0763a6b357c94/docs/rules/no-magic-numbers.md)
+ที่สามารถช่วยให้เราระบุตัวแปรค่าคงที่ที่ยังไม่ถูกตั้งชื่อได้
+
+**Bad:**
+
+```javascript
+// What the heck is 86400000 for?
+setTimeout(blastOff, 86400000);
+```
+
+**Good:**
+
+```javascript
+// Declare them as capitalized named constants.
+const MILLISECONDS_IN_A_DAY = 86_400_000;
+
+setTimeout(blastOff, MILLISECONDS_IN_A_DAY);
+```
+
 **[⬆ back to top](#table-of-contents)**
