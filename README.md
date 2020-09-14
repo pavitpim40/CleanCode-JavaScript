@@ -88,4 +88,63 @@ const MILLISECONDS_IN_A_DAY = 86_400_000;
 setTimeout(blastOff, MILLISECONDS_IN_A_DAY);
 ```
 
+**[⬆ back to top](#table-of-contents)**  
+
+### Use explanatory variables
+
+**Bad:**
+
+```javascript
+const address = "One Infinite Loop, Cupertino 95014";
+const cityZipCodeRegex = /^[^,\\]+[,\\\s]+(.+?)\s*(\d{5})?$/;
+saveCityZipCode(
+  address.match(cityZipCodeRegex)[1],
+  address.match(cityZipCodeRegex)[2]
+);
+```
+
+**Good:**
+
+```javascript
+const address = "One Infinite Loop, Cupertino 95014";
+const cityZipCodeRegex = /^[^,\\]+[,\\\s]+(.+?)\s*(\d{5})?$/;
+const [_, city, zipCode] = address.match(cityZipCodeRegex) || [];
+saveCityZipCode(city, zipCode);
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### หลีกเลี่ยงการ Map โดยชือตัวแปรที่คนอ่านต้องไปนึกต่อเอาเอง
+
+ตั้งชื่อให้ชัดเจนดีกว่าย่อแบบมีนัย
+
+**Bad:**
+
+```javascript
+const locations = ["Austin", "New York", "San Francisco"];
+locations.forEach(l => {
+  doStuff();
+  doSomeOtherStuff();
+  // ...
+  // ...
+  // ...
+  // Wait, what is `l` for again?
+  dispatch(l);
+});
+```
+
+**Good:**
+
+```javascript
+const locations = ["Austin", "New York", "San Francisco"];
+locations.forEach(location => {
+  doStuff();
+  doSomeOtherStuff();
+  // ...
+  // ...
+  // ...
+  dispatch(location);
+});
+```
+
 **[⬆ back to top](#table-of-contents)**
