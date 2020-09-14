@@ -27,4 +27,22 @@ you shout when reading code](https://www.osnews.com/images/comics/wtfm.jpg)
 
 
 อีกสิ่งหนึ่งคืออย่าพยายามทำให้สมบูรณ์แบบตั้งแต่ในทีแรก  
-อย่าเร่งรีบกดเอาชนะตัวเองด้วยโค้ดที่สมบูรณ์แบบ เปลี่ยนมาเอาชนะโค้ดทีละเล็กทีละน้อยแทน
+อย่าเร่งรีบเอาชนะตัวเองด้วยโค้ดที่สมบูรณ์แบบ เปลี่ยนมาเอาชนะโค้ดทีละเล็กทีละน้อยแทน  
+
+## **Variables**
+
+### ใช้ที่ตัวแปรที่สือความหมายชัดเจน
+
+**Bad:**
+
+```javascript
+const yyyymmdstr = moment().format("YYYY/MM/DD");
+```
+
+**Good:**
+
+```javascript
+const currentDate = moment().format("YYYY/MM/DD");
+```
+
+**[⬆ back to top](#table-of-contents)**
