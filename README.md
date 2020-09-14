@@ -255,4 +255,300 @@ createMenu({
 });
 ```
 
+**[⬆ back to top](#table-of-contents)**  
+
+### ฟังก์ชันควรมีหน้าที่ทำอย่างใดเพียงอย่างเดียวเท่านั้น
+
+นี่น่าจะเป็นกฏข้อที่สำคัญที่สุด  
+เมื่อฟังก์ชันทำงานมากกว่าหนึ่งงาน จะทำให้การ compose,การ test ทำได้ยากลำบากยิ่งขึ้น  
+หากฟังก์ชันของเราทำเพียงงานใดงานหนึ่ง จะทำให้ให้โค้ดดูคลีนและง่ายต่อการแยกส่วนโค้ด
+
+**Bad:**
+
+```javascript
+function emailClients(clients) {
+  clients.forEach(client => {
+    const clientRecord = database.lookup(client);
+    if (clientRecord.isActive()) {
+      email(client);
+    }
+  });
+}
+```
+
+**Good:**
+
+```javascript
+function emailActiveClients(clients) {
+  clients.filter(isActiveClient).forEach(email);
+}
+
+function isActiveClient(client) {
+  const clientRecord = database.lookup(client);
+  return clientRecord.isActive();
+}
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+
+### ชื่อของฟังก์ชันควรบ่งบอกว่าตัวมันเองทำอะไรได้
+
+**Bad:**
+
+```javascript
+function addToDate(date, month) {
+  // ...
+}
+
+const date = new Date();
+
+// It's hard to tell from the function name what is added
+addToDate(date, 1);
+```
+
+**Good:**
+
+```javascript
+function addMonthToDate(month, date) {
+  // ...
+}
+
+const date = new Date();
+addMonthToDate(1, date);
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### ฟังก์ชันควรมีระดับความ abstract อยู่แค่หนึ่งระดับ
+
+ถ้าฟังก์ชันมีระดับความ abstract เกินหนึ่งระดับนั่นอาจหมายความว่า  
+ฟังก์ชันของคุณอาจจะทำงานหลายอย่างมากเกินไป 
+การ spilt ฟังก์ชันออกมาเป็นหลายๆฟังก์ชันจะทำให้การ reuse โค้ดและการ test ทำได้ง่ายกว่า
+testing.
+
+**Bad:**
+
+```javascript
+function parseBetterJSAlternative(code) {
+  const REGEXES = [
+    // ...
+  ];
+
+  const statements = code.split(" ");
+  const tokens = [];
+  REGEXES.forEach(REGEX => {
+    statements.forEach(statement => {
+      // ...
+    });
+  });
+
+  const ast = [];
+  tokens.forEach(token => {
+    // lex...
+  });
+
+  ast.forEach(node => {
+    // parse...
+  });
+}
+```
+
+**Good:**
+
+```javascript
+function parseBetterJSAlternative(code) {
+  const tokens = tokenize(code);
+  const syntaxTree = parse(tokens);
+  syntaxTree.forEach(node => {
+    // parse...
+  });
+}
+
+function tokenize(code) {
+  const REGEXES = [
+    // ...
+  ];
+
+  const statements = code.split(" ");
+  const tokens = [];
+  REGEXES.forEach(REGEX => {
+    statements.forEach(statement => {
+      tokens.push(/* ... */);
+    });
+  });
+
+  return tokens;
+}
+
+function parse(tokens) {
+  const syntaxTree = [];
+  tokens.forEach(token => {
+    syntaxTree.push(/* ... */);
+  });
+
+  return syntaxTree;
+}
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### Remove duplicate code
+
+นึกภาพว่าหากเรามีลิสต์จดไว้หลายที เวลาอัพเดททีก็ต้องตามไปอัพเดททุกที่ที่จดไว้  
+การ duplicate โค้ดก็เช่นกัน
+
+บ่อยครั้งการ duplicate code มาจากการที่เราต้องการใช้บางอย่างหลายๆที่ แต่มีปัจจัยที่แตกตต่างกันเล็กน้อย  
+แต่กระนั้นเราควรจะเป็นสองฟังก์ชันหรือมากกว่านั้นจะดีกว่า  
+
+การกำจัด duplicate code อาจหมายึงการสร้าง abstract อย่างหนึ่งขึ้นมา เช่น function/module/class
+เพือจัดการกับงานในบริบทที่แตกต่างกัน
+
+
+**Bad:**
+
+```javascript
+function showDeveloperList(developers) {
+  developers.forEach(developer => {
+    const expectedSalary = developer.calculateExpectedSalary();
+    const experience = developer.getExperience();
+    const githubLink = developer.getGithubLink();
+    const data = {
+      expectedSalary,
+      experience,
+      githubLink
+    };
+
+    render(data);
+  });
+}
+
+function showManagerList(managers) {
+  managers.forEach(manager => {
+    const expectedSalary = manager.calculateExpectedSalary();
+    const experience = manager.getExperience();
+    const portfolio = manager.getMBAProjects();
+    const data = {
+      expectedSalary,
+      experience,
+      portfolio
+    };
+
+    render(data);
+  });
+}
+```
+
+**Good:**
+
+```javascript
+function showEmployeeList(employees) {
+  employees.forEach(employee => {
+    const expectedSalary = employee.calculateExpectedSalary();
+    const experience = employee.getExperience();
+
+    const data = {
+      expectedSalary,
+      experience
+    };
+
+    switch (employee.type) {
+      case "manager":
+        data.portfolio = employee.getMBAProjects();
+        break;
+      case "developer":
+        data.githubLink = employee.getGithubLink();
+        break;
+    }
+
+    render(data);
+  });
+}
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### ใช้ Object.assign ในการตั้งค่า defualt ของ Object  
+
+**Bad:**
+
+```javascript
+const menuConfig = {
+  title: null,
+  body: "Bar",
+  buttonText: null,
+  cancellable: true
+};
+
+function createMenu(config) {
+  config.title = config.title || "Foo";
+  config.body = config.body || "Bar";
+  config.buttonText = config.buttonText || "Baz";
+  config.cancellable =
+    config.cancellable !== undefined ? config.cancellable : true;
+}
+
+createMenu(menuConfig);
+```
+
+**Good:**
+
+```javascript
+const menuConfig = {
+  title: "Order",
+  // User did not include 'body' key
+  buttonText: "Send",
+  cancellable: true
+};
+
+function createMenu(config) {
+  let finalConfig = Object.assign(
+    {
+      title: "Foo",
+      body: "Bar",
+      buttonText: "Baz",
+      cancellable: true
+    },
+    config
+  );
+  return finalConfig
+  // config now equals: {title: "Order", body: "Bar", buttonText: "Send", cancellable: true}
+  // ...
+}
+
+createMenu(menuConfig);
+```
+
+**[⬆ back to top](#table-of-contents)**  
+
+### อย่าใช้ตัวบอกสถานะ (flag) เป็นฟังก์ชันพารามิเตอร์
+
+หากค่าสถานะเป็นหนึ่งในพารามิเตอร์แสดงว่าฟังก์ชันของคุณทำงานได้มากกว่าหนึ่งอย่าง  
+แยกฟังก์ชันของคุณหากต้องการให้โค้ดทำงานต่างกันโดยอ้างอิงจาก Boolean
+
+
+**Bad:**
+
+```javascript
+function createFile(name, temp) {
+  if (temp) {
+    fs.create(`./temp/${name}`);
+  } else {
+    fs.create(name);
+  }
+}
+```
+
+**Good:**
+
+```javascript
+function createFile(name) {
+  fs.create(name);
+}
+
+function createTempFile(name) {
+  createFile(`./temp/${name}`);
+}
+```
+
 **[⬆ back to top](#table-of-contents)**
