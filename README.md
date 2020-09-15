@@ -552,3 +552,396 @@ function createTempFile(name) {
 ```
 
 **[⬆ back to top](#table-of-contents)**
+
+
+### หลีกเลี่ยง Side Effects (พาร์ท 1)
+
+การหลีกเลี่ยง Side Effect อย่างแรกเลยคือการให้ฟังก์ชันแก้ไข Global Variable โดยตรง
+ซึ่งอาจทำให้ตัวแปรนั้นมีการเปลี่ยนแปลงประเภทไปและไมสามารถนำไปใช้กับส่วนอื่นๆ ของโปรแกรมได้
+
+**Bad:** ตัวฟังก์ชันแก้ไขค่าของตัวแปร name โดยตรงและให้ผลลัพธ์เป็น array
+
+```javascript
+// Global variable referenced by following function.
+// If we had another function that used this name, now it'd be an array and it could break it.
+let name = "Ryan McDermott";
+
+function splitIntoFirstAndLastName() {
+  name = name.split(" ");
+}
+
+splitIntoFirstAndLastName();
+
+console.log(name); // ['Ryan', 'McDermott'];
+```
+
+**Good:** นำตัวแปร newName มารับค่าจากการ spilt แทนทำให้ name ยังคงเป็น string เหมือนเดิม
+
+```javascript
+function splitIntoFirstAndLastName(name) {
+  return name.split(" ");
+}
+
+const name = "Ryan McDermott";
+const newName = splitIntoFirstAndLastName(name);
+
+console.log(name); // 'Ryan McDermott';
+console.log(newName); // ['Ryan', 'McDermott'];
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+
+
+### หลีกเลี่ยง Side Effects (part 2)
+
+ไม่ควรแก้ไข Object, Array โดยตรง เนื่องจากเ็นการ passed by Refference  
+ตัวอย่างเช่นผู้ใช้งานรายหนึ่งกำลังซื้อของผ่านช่องทางออนไลน์ ได้เพิ่มสินค้าเข้าไป 5 ชิ้น
+และกดปุ่มจ่ายเงิน ปรากฏว่าเกิด bad request และระหว่างที่รอ response นั้น  
+ลูกค้าเผลอไปกดเพิ่มสินค้าโดยไม่ได้ตั้งใจ ทำให้ผู้ใช้งานต้องจ่ายเงินสินค้า 6 ชิ้น
+ทั้งหมดนี้จะเกิดขึ้นหากเรานำ cart ที่เก็บสินค้าไปใช้งานโดยตรงเลย
+วิธีแก้คือควรจะ clone cart แยกออกมาเพิ่อส่งไป purchase เพื่อหลีกเลี่ยงการแก้ไขโดยตรง  
+กับข้อมูลประเภท Array , Object 
+
+**Bad:**
+
+```javascript
+const addItemToCart = (cart, item) => {
+  cart.push({ item, date: Date.now() });
+};
+```
+
+**Good:**
+
+```javascript
+const addItemToCart = (cart, item) => {
+  return [...cart, { item, date: Date.now() }];
+};
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### อย่าเขียน Global function
+
+ตัวอย่างโค้ดที่ยกมาคือเป็นการเพิ่มเมธอดให้ Array.prototype  
+แต่หากคนอืนเอาโค้ดไปรวมอาจจะทำให้ clash เพราะทุกคนก็ใช้ Array.prototype เหมือนกัน  
+และอาจจะบังเอิญตั้งชื่อฟังก์ชันที่เพิ่มเข้าไปเหมือนกันด้วย  
+กล่าวคืออย่าพยายามไปแก้ไขอะไรที่มัน original ให้ extends ออกมา 
+
+**Bad:** ฟังก์ชัน diff ใน Array.prototype อยู่ใน global Scope
+
+```javascript
+Array.prototype.diff = function diff(comparisonArray) {
+  const hash = new Set(comparisonArray);
+  return this.filter(elem => !hash.has(elem));
+};
+```
+
+**Good:** ใช้การ Extend Class แทนจะดีกว่า
+
+```javascript
+class SuperArray extends Array {
+  diff(comparisonArray) {
+    const hash = new Set(comparisonArray);
+    return this.filter(elem => !hash.has(elem));
+  }
+}
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### เน้นการเขียนแบบ Functional Programming มากว่า Imperative programming
+
+การเขียนแบบ Imperative คือการอธิบายขั้นตอนการทำงานว่าโค้ดแต่ละบรรทัดมีการทำงานอย่างไร
+ส่วนการเขียนแบบ Functional จะเน้นไปที่การประกาศตัวแปรแต่ละตัวว่าเป็อะไรแล้วค่อยประเมิณค่าทีเดียวตอน runtime 
+
+**Bad:**
+
+```javascript
+const programmerOutput = [
+  {
+    name: "Uncle Bobby",
+    linesOfCode: 500
+  },
+  {
+    name: "Suzie Q",
+    linesOfCode: 1500
+  },
+  {
+    name: "Jimmy Gosling",
+    linesOfCode: 150
+  },
+  {
+    name: "Gracie Hopper",
+    linesOfCode: 1000
+  }
+];
+
+let totalOutput = 0;
+
+for (let i = 0; i < programmerOutput.length; i++) {
+  totalOutput += programmerOutput[i].linesOfCode;
+}
+```
+
+**Good:**
+
+```javascript
+const programmerOutput = [
+  {
+    name: "Uncle Bobby",
+    linesOfCode: 500
+  },
+  {
+    name: "Suzie Q",
+    linesOfCode: 1500
+  },
+  {
+    name: "Jimmy Gosling",
+    linesOfCode: 150
+  },
+  {
+    name: "Gracie Hopper",
+    linesOfCode: 1000
+  }
+];
+
+const totalOutput = programmerOutput.reduce(
+  (totalLines, output) => totalLines + output.linesOfCode,
+  0
+);
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### ใช้การห่อหุ้มเงื่อนไข Encapsulate conditionals  
+
+หากใส่เงื่อนไขยาวๆลงไปใน conditional statement จะทำให้อ่านยาก  
+ให้นำเงื่อนไขที่ต้องการเช็คมาหุ้มด้วยฟังก์ชันแล้วรีเทิร์นค่าออกไปใช้ต่อจะดูอ่านง่ายกว่า
+**Bad:**
+
+```javascript
+if (fsm.state === "fetching" && isEmpty(listNode)) {
+  // ...
+}
+```
+
+**Good:**
+
+```javascript
+function shouldShowSpinner(fsm, listNode) {
+  return fsm.state === "fetching" && isEmpty(listNode);
+}
+
+if (shouldShowSpinner(fsmInstance, listNodeInstance)) {
+  // ...
+}
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### หลีกเลี่ยงการใช้ negative conditionals  
+
+ทำให้อ่านทำความเข้าใจยาก ต้องตีความซ้ำซ้อน
+
+**Bad:**
+
+```javascript
+function isDOMNodeNotPresent(node) {
+  // ...
+}
+
+if (!isDOMNodeNotPresent(node)) {
+  // ...
+}
+```
+
+**Good:**
+
+```javascript
+function isDOMNodePresent(node) {
+  // ...
+}
+
+if (isDOMNodePresent(node)) {
+  // ...
+}
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### หลีกเลี่ยงการใช้เงื่อนไข 
+
+แนวคิดนี้อาจจะดูทำตามได้ยาก แต่เรายึดตามหลักที่ว่าหนึ่งฟังก์ชันควรจะทำหน้าที่แค่อย่างเดียวเท่านั้น  
+การมีเงื่อนไขนั่นก็หมายความว่าฟังก์ชันเราทำงานได้หลายอย่างโดยปริยาย  
+แนวคิดหลักที่เราจะใช้ก็คือ polymorphism ซึ่งก็ืคอการที่ออปเจ็คมีได้หลายรูปแบบ  
+เราจะใช้การสร้างออปเจ็คที่มาจาก class ที่มี superclass เดียวกัน  
+โดยใน subclass ใหม่ได้มีการกำหนดการทำงานใหม่ให้กับ method เพื่อให้ตรงจุดประสงค์ของ class นั้นๆ
+
+ 
+**Bad:** ใช้ switch case 
+
+```javascript
+class Airplane {
+  // ...
+  getCruisingAltitude() {
+    switch (this.type) {
+      case "777":
+        return this.getMaxAltitude() - this.getPassengerCount();
+      case "Air Force One":
+        return this.getMaxAltitude();
+      case "Cessna":
+        return this.getMaxAltitude() - this.getFuelExpenditure();
+    }
+  }
+}
+```
+
+**Good:** extend class ออกมาและเพิ่มเมธอดของใครของมัน
+
+```javascript
+class Airplane {
+  // ...
+}
+
+class Boeing777 extends Airplane {
+  // ...
+  getCruisingAltitude() {
+    return this.getMaxAltitude() - this.getPassengerCount();
+  }
+}
+
+class AirForceOne extends Airplane {
+  // ...
+  getCruisingAltitude() {
+    return this.getMaxAltitude();
+  }
+}
+
+class Cessna extends Airplane {
+  // ...
+  getCruisingAltitude() {
+    return this.getMaxAltitude() - this.getFuelExpenditure();
+  }
+}
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### Avoid type-checking (part 1)
+
+แม้ว่า JS จะเป็นภาษาแบบ Dynamics จนทำให้เราอยากเช็คประเภทของข้อมูลอยู่ตลอดเวลา  
+แต่นั้นก็ขัดกับแนวคิดก่อนหน้านั้นว่า ถ้ามีเงื่อนไขฟังก์ชันก็จะทำงานได้มากกว่า 1 แบบ  
+วิธีการแรกคือการพิจารณา APIs ที่ใช้อย่างสม่ำเสมอ
+
+**Bad:** ตัดสินใจว่าจะปั่นหรือขับโดยดูว่าพาหนะเป็นชนิดใด
+
+```javascript
+function travelToTexas(vehicle) {
+  if (vehicle instanceof Bicycle) {
+    vehicle.pedal(this.currentLocation, new Location("texas"));
+  } else if (vehicle instanceof Car) {
+    vehicle.drive(this.currentLocation, new Location("texas"));
+  }
+}
+```
+
+**Good:** เคลื่อนที่ไม่เลยขอแค่เป็นยานพาหนะ
+
+```javascript
+function travelToTexas(vehicle) {
+  vehicle.move(this.currentLocation, new Location("texas"));
+}
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### Avoid type-checking (part 2)
+
+หากเราทำงานกับ string , integer และใช้แนวคิด polymorp ไม่ได้  
+แต่ยังต้องการ type checking แนะนำให้ใช้ภาษา TypeScript แทน  
+หากเราใช้ JS แล้วต้องมาคอยเช็คประเภทตัวแปรตลอดเวลา จะทำให้เราเขียนโค้ด  
+โดยใช้คำฟุ่มเฟือย ไมดูคลีน และสูญเสียความสามารถในการอ่านทำความเข้าใจ
+ถ้าจะไม่ใช้ TypeScript ก็ไม่ต้องเช็คไปเลยใน JS ดูคลีนกว่า
+
+**Bad:**
+
+```javascript
+function combine(val1, val2) {
+  if (
+    (typeof val1 === "number" && typeof val2 === "number") ||
+    (typeof val1 === "string" && typeof val2 === "string")
+  ) {
+    return val1 + val2;
+  }
+
+  throw new Error("Must be of type String or Number");
+}
+```
+
+**Good:**
+
+```javascript
+function combine(val1, val2) {
+  return val1 + val2;
+}
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### อย่าพยายาม optimize จนเกินไป 
+โดยสรุปคือ Browser ยุคใหม่ๆค่อนข้างมี tool ที่ชวยเรา optimize มาในระดับหนึ่งแล้ว อ้างอิง [There are good
+resources](https://github.com/petkaantonov/bluebird/wiki/Optimization-killers)
+
+**Bad:** สมัยก่อนไม่สามารถดักจับ list.length ได้ในการ iterate แต่ละรอบ
+
+```javascript 
+// On old browsers, each iteration with uncached `list.length` would be costly
+// because of `list.length` recomputation. In modern browsers, this is optimized.
+for (let i = 0, len = list.length; i < len; i++) {
+  // ...
+}
+```
+
+**Good:** ตอนนี้ไม่้องสร้างตัวแปรมารับค่า list.length แล้ว
+
+```javascript
+for (let i = 0; i < list.length; i++) {
+  // ...
+}
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### กำจัด dead code
+
+ไม่มีเหตุผลที่จะเก็บ Code ที่ไม่ใช้ไว้  
+หากคุณคิดว่ามีความจำเป็นที่ต้องใช้งานมันอีกครั้งให้ใช้ version control แทน
+
+**Bad:**
+
+```javascript
+function oldRequestModule(url) {
+  // ...
+}
+
+function newRequestModule(url) {
+  // ...
+}
+
+const req = newRequestModule;
+inventoryTracker("apples", req, "www.inventory-awesome.io");
+```
+
+**Good:**
+
+```javascript
+function newRequestModule(url) {
+  // ...
+}
+
+const req = newRequestModule;
+inventoryTracker("apples", req, "www.inventory-awesome.io");
+```
+
+**[⬆ back to top](#table-of-contents)**
